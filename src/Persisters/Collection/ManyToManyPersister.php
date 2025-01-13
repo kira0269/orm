@@ -260,7 +260,6 @@ class ManyToManyPersister extends AbstractCollectionPersister
         }
 
         $params = array_merge($params, ...$paramsValues);
-        unset($paramsValues);
 
         $tableName = $this->quoteStrategy->getTableName($targetClass, $this->platform);
         $joinTable = $this->quoteStrategy->getJoinTableName($mapping, $associationSourceClass, $this->platform);

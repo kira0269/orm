@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\ORM\Functional;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
@@ -78,7 +80,6 @@ class EnumTest extends OrmFunctionalTestCase
         $this->_em->persist($card2);
         $this->_em->flush();
 
-        unset($card1, $card2);
         $this->_em->clear();
 
         /** @var list<Card> $foundCards */
@@ -406,7 +407,6 @@ class EnumTest extends OrmFunctionalTestCase
         $this->_em->persist($card2);
         $this->_em->flush();
 
-        unset($card1, $card2);
         $this->_em->clear();
 
         /** @var list<Card> $foundCards */
@@ -542,12 +542,15 @@ EXCEPTION
         $this->_em->flush();
         $libraryId = $library->id;
 
-        unset($library, $redBook, $blueBook);
-
         $this->_em->clear();
 
         $library = $this->_em->find(Library::class, $libraryId);
-        $this->assertCount(1, $library->getBooksWithColor(BookColor::RED));
+
+        $redBooks = $library->books->matching(
+            Criteria::create()->andWhere(Criteria::expr()->eq('bookColor', BookColor::RED)),
+        );
+
+        $this->assertCount(1, $redBooks);
     }
 
     public function testEnumInitializedCollectionMatchingWithOneToMany(): void
@@ -571,8 +574,6 @@ EXCEPTION
         $this->_em->flush();
         $libraryId = $library->id;
 
-        unset($library, $redBook, $blueBook);
-
         $this->_em->clear();
 
         $library = $this->_em->find(Library::class, $libraryId);
@@ -581,7 +582,11 @@ EXCEPTION
         // Load books collection first
         $this->assertCount(2, $library->getBooks());
 
-        $this->assertCount(1, $library->getBooksWithColor(BookColor::RED));
+        $redBooks = $library->books->matching(
+            Criteria::create()->andWhere(Criteria::expr()->eq('bookColor', BookColor::RED)),
+        );
+
+        $this->assertCount(1, $redBooks);
     }
 
     public function testEnumLazyCollectionMatchingWithManyToMany(): void
@@ -612,10 +617,14 @@ EXCEPTION
         $thrillerCategoryId = $thrillerCategory->id;
 
         $this->_em->clear();
-        unset($thrillerCategory, $fantasyCategory, $blueBook, $redBook);
 
         $thrillerCategory = $this->_em->find(BookCategory::class, $thrillerCategoryId);
-        $this->assertCount(1, $thrillerCategory->getBooksWithColor(BookColor::RED));
+
+        $redBooks = $thrillerCategory->books->matching(
+            Criteria::create()->andWhere(Criteria::expr()->eq('bookColor', BookColor::RED)),
+        );
+
+        $this->assertCount(1, $redBooks);
     }
 
     public function testEnumInitializedCollectionMatchingWithManyToMany(): void
@@ -646,7 +655,6 @@ EXCEPTION
         $thrillerCategoryId = $thrillerCategory->id;
 
         $this->_em->clear();
-        unset($thrillerCategory, $fantasyCategory, $blueBook, $redBook);
 
         $thrillerCategory = $this->_em->find(BookCategory::class, $thrillerCategoryId);
         $this->assertInstanceOf(BookCategory::class, $thrillerCategory);
@@ -654,6 +662,10 @@ EXCEPTION
         // Load books collection first
         $this->assertCount(2, $thrillerCategory->getBooks());
 
-        $this->assertCount(1, $thrillerCategory->getBooksWithColor(BookColor::RED));
+        $redBooks = $thrillerCategory->books->matching(
+            Criteria::create()->andWhere(Criteria::expr()->eq('bookColor', BookColor::RED)),
+        );
+
+        $this->assertCount(1, $redBooks);
     }
 }

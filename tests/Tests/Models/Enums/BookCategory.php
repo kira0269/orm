@@ -6,7 +6,6 @@ namespace Doctrine\Tests\Models\Enums;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
@@ -40,13 +39,5 @@ class BookCategory
     public function getBooks(): Collection
     {
         return $this->books;
-    }
-
-    public function getBooksWithColor(BookColor $bookColor): Collection
-    {
-        $criteria = Criteria::create()
-            ->andWhere(Criteria::expr()->eq('bookColor', $bookColor));
-
-        return $this->books->matching($criteria);
     }
 }
